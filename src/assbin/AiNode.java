@@ -39,7 +39,7 @@ public class AiNode {
         for (int i = 0; i < childCount; i++) {
             children[i] = new AiNode(new AssbinChunk(chunkBuffer));
         }
-        properties = new HashMap<>();
+        properties = new HashMap<String, Object>();
         for (int i = 0; i < propertyCount; i++) {
             String key = AssbinChunk.getString(chunkBuffer);
             Object value;

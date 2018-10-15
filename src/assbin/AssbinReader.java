@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
 
 public class AssbinReader {
 
@@ -20,7 +19,8 @@ public class AssbinReader {
 
     public AssbinReader(URL assbinAddress) throws IOException, AssbinException {
         ByteBuffer assbinBuffer;
-        try (InputStream assbinStream = assbinAddress.openStream()) {
+        InputStream assbinStream = assbinAddress.openStream();
+        try {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             byte[] buffer = new byte[4096];
             int bytesRead;
@@ -28,10 +28,12 @@ public class AssbinReader {
                 outputStream.write(buffer, 0, bytesRead);
             }
             assbinBuffer = ByteBuffer.wrap(outputStream.toByteArray()).order(ByteOrder.LITTLE_ENDIAN);
+        } finally {
+            assbinStream.close();
         }
         byte[] magicBytes = new byte[44];
         assbinBuffer.get(magicBytes);
-        if (!new String(magicBytes, StandardCharsets.US_ASCII).startsWith("ASSIMP.binary")) {
+        if (!new String(magicBytes, "US-ASCII").startsWith("ASSIMP.binary")) {
             throw new AssbinException("Not a .assbin file.");
         }
         majorVersion = assbinBuffer.getInt();
@@ -46,9 +48,9 @@ public class AssbinReader {
         }
         byte[] stringBuffer = new byte[256];
         assbinBuffer.get(stringBuffer);
-        sourceFileName = new String(stringBuffer, 0, indexOfFirstZero(stringBuffer), StandardCharsets.UTF_8);
+        sourceFileName = new String(stringBuffer, 0, indexOfFirstZero(stringBuffer), "UTF-8");
         assbinBuffer.get(stringBuffer, 0, 128);
-        commandParameters = new String(stringBuffer, 0, indexOfFirstZero(stringBuffer), StandardCharsets.UTF_8);
+        commandParameters = new String(stringBuffer, 0, indexOfFirstZero(stringBuffer), "UTF-8");
         assbinBuffer.position(assbinBuffer.position() + 64);
         scene = new AiScene(new AssbinChunk(assbinBuffer));
     }

@@ -1,9 +1,9 @@
 package assbin;
 
 import java.awt.Color;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
 
 class AssbinChunk {
 
@@ -42,7 +42,11 @@ class AssbinChunk {
     static String getString(ByteBuffer buffer) {
         byte[] stringBytes = new byte[buffer.getInt()];
         buffer.get(stringBytes);
-        return new String(stringBytes, StandardCharsets.UTF_8);
+        try {
+            return new String(stringBytes, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new Error("The UTF-8 charset is not supported!", e);
+        }
     }
 
     static float[][] getMatrix(ByteBuffer buffer) {
