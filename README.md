@@ -19,3 +19,6 @@ public class FaceCountDemo {
 }
 ``` 
 
+## Dependencies
+ * Java SE 5.0 or higher
+
