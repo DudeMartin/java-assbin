@@ -40,12 +40,20 @@ class AssbinChunk {
     }
 
     static String getString(ByteBuffer buffer) {
-        byte[] stringBytes = new byte[buffer.getInt()];
+        return getString(buffer, buffer.getInt(), "UTF-8");
+    }
+
+    static String getString(ByteBuffer buffer, int length, String standardCharset) {
+        byte[] stringBytes = new byte[length];
         buffer.get(stringBytes);
+        return getString(stringBytes, length, standardCharset);
+    }
+
+    static String getString(byte[] stringBytes, int length, String standardCharset) {
         try {
-            return new String(stringBytes, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            throw new Error("The UTF-8 charset is not supported!", e);
+            return new String(stringBytes, 0, length, standardCharset);
+        } catch (UnsupportedEncodingException fatalException) {
+            throw new Error("Missing standard charset: " + standardCharset, fatalException);
         }
     }
 

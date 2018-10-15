@@ -31,9 +31,7 @@ public class AssbinReader {
         } finally {
             assbinStream.close();
         }
-        byte[] magicBytes = new byte[44];
-        assbinBuffer.get(magicBytes);
-        if (!new String(magicBytes, "US-ASCII").startsWith("ASSIMP.binary")) {
+        if (!AssbinChunk.getString(assbinBuffer, 44, "US-ASCII").startsWith("ASSIMP.binary")) {
             throw new AssbinException("Not a .assbin file.");
         }
         majorVersion = assbinBuffer.getInt();
@@ -48,15 +46,15 @@ public class AssbinReader {
         }
         byte[] stringBuffer = new byte[256];
         assbinBuffer.get(stringBuffer);
-        sourceFileName = new String(stringBuffer, 0, indexOfFirstZero(stringBuffer), "UTF-8");
+        sourceFileName = AssbinChunk.getString(stringBuffer, indexOfFirstZero(stringBuffer, 256), "UTF-8");
         assbinBuffer.get(stringBuffer, 0, 128);
-        commandParameters = new String(stringBuffer, 0, indexOfFirstZero(stringBuffer), "UTF-8");
+        commandParameters = AssbinChunk.getString(stringBuffer, indexOfFirstZero(stringBuffer, 128), "UTF-8");
         assbinBuffer.position(assbinBuffer.position() + 64);
         scene = new AiScene(new AssbinChunk(assbinBuffer));
     }
 
-    private static int indexOfFirstZero(byte[] array) {
-        for (int i = 0, length = array.length; i < length; i++) {
+    private static int indexOfFirstZero(byte[] array, int limit) {
+        for (int i = 0; i < limit; i++) {
             if (array[i] == 0) {
                 return i;
             }
